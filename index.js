@@ -88,14 +88,49 @@ function run() {
         x = getX(i, z, sign),
         y = getY(i * yLocalScale, z);
 
-      if (zoff + sign * Math.PI / 4 < 0) {
-        switchColor(foreground);
-      } else {
-        switchColor(background);
-      }
+	  var normZ = (sign * zoff);
+	  
+	  if(normZ > maxz){
+		maxz = normZ;
+		console.log(maxz);  
+	  }
+	  if(normZ < minz){
+		minz = normZ;
+		console.log(minz);  
+	  }
+	  
+	  normZ = (normZ + Math.abs(minz)) / (Math.abs(minz) + maxz);
+	  var col = interpColor(foreground, background, normZ);
+	  
+      switchColor(col);
       ctx.moveTo(x, y);
       ctx.lineTo(getX(i + 0.03, z, sign), getY((i + 0.01) * yLocalScale, z));
     };
+  }
+  
+  var minz = 0;
+  var maxz = 0;
+  function interpColor(color1, color2, t) {
+	  t = Math.min(Math.max(0,t), 1);
+	  
+	  color1 = color1.substring(1);
+	  color2 = color2.substring(1);
+	  
+	  var r1 = parseInt(color1.substring(0,1), 16);
+	  var g1 = parseInt(color1.substring(2,3), 16);
+	  var b1 = parseInt(color1.substring(4,5), 16);
+	  
+	  var r2 = parseInt(color2.substring(0,1), 16);
+	  var g2 = parseInt(color2.substring(2,3), 16);
+	  var b2 = parseInt(color2.substring(4,5), 16);
+	  
+	  var rfinal = r1 * t + r2 * (1 - t);
+	  var gfinal = g1 * t + g2 * (1 - t);
+	  var bfinal = b1 * t + b2 * (1 - t);
+	  
+	  var newcolor = Math.round(rfinal).toString(16) + Math.round(gfinal).toString(16) + Math.round(bfinal).toString(16);
+	  
+	  return "#"+newcolor;
   }
 
   function switchColor(color) {
